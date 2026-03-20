@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bryan Wambo — Cybersecurity Student</title>
+  <meta name="description" content="Étudiant en Master Cybersécurité à Ecole-IT Belgique. Audit NIS2, Microsoft Entra ID, test d'intrusion. Disponible pour stage ou alternance."/>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+
+  <!-- Stylesheets — ordre important -->
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/hero.css"/>
+  <link rel="stylesheet" href="css/sections.css"/>
+  <link rel="stylesheet" href="css/projects.css"/>
+  <link rel="stylesheet" href="css/responsive.css"/>
+</head>
+<body>
+
+  <!-- ══════════════════════════════
+       UTILITAIRES (cursor, scroll)
+  ══════════════════════════════ -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+  <div id="scroll-bar"></div>
+
+  <!-- ══════════════════════════════
+       CONTROLS (theme + lang)
+  ══════════════════════════════ -->
+  <div class="ctrl-cluster">
+
+    <button class="ctrl-btn" id="btn-theme" aria-label="Basculer le thème">
+      <!-- Sun (visible en mode light) -->
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4.5"/>
+        <line x1="12" y1="2"     x2="12" y2="4.5"/>
+        <line x1="12" y1="19.5"  x2="12" y2="22"/>
+        <line x1="4.22"  y1="4.22"   x2="5.88"  y2="5.88"/>
+        <line x1="18.12" y1="18.12"  x2="19.78" y2="19.78"/>
+        <line x1="2"     y1="12"     x2="4.5"   y2="12"/>
+        <line x1="19.5"  y1="12"     x2="22"    y2="12"/>
+        <line x1="4.22"  y1="19.78"  x2="5.88"  y2="18.12"/>
+        <line x1="18.12" y1="5.88"   x2="19.78" y2="4.22"/>
+      </svg>
+      <!-- Moon (visible en mode dark) -->
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+
+    <button class="ctrl-btn" id="btn-lang" aria-label="Changer de langue">
+      <span class="lang-label" id="lang-label">EN</span>
+    </button>
+
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL PROJET
+  ══════════════════════════════ -->
+  <div id="modal-overlay">
+    <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <!-- Image -->
+      <div class="modal-image">
+        <div class="modal-img-placeholder" id="modal-img-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span id="modal-img-ph-text">Aucune image</span>
+        </div>
+        <img id="modal-img" src="" alt="" style="display:none;"/>
+      </div>
+
+      <!-- Close -->
+      <button class="modal-close" onclick="window.closeModal()" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6"  x2="6"  y2="18"/>
+          <line x1="6"  y1="6"  x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Content -->
+      <div class="modal-content">
+        <div class="modal-meta">
+          <span class="modal-category" id="modal-category"></span>
+          <span class="badge badge-blue"  id="modal-badge"></span>
+        </div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <div class="modal-body"  id="modal-body"></div>
+
+        <!-- Technologies -->
+        <div class="modal-section-label" id="modal-label-tech">Technologies</div>
+        <div class="modal-tags" id="modal-tags"></div>
+
+        <!-- Upload image -->
+        <div class="modal-section-label" id="modal-label-image">Image du projet</div>
+        <div class="upload-zone" id="upload-zone" role="button" tabindex="0"
+             aria-label="Ajouter une image"
+             onkeydown="if(event.key==='Enter')this.click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <polyline points="16 16 12 12 8 16"/>
+            <line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+          </svg>
+          <span id="upload-hint-text">Cliquez pour ajouter une image</span>
+        </div>
+        <input type="file" id="file-input" accept="image/*"/>
+
+        <!-- Liens -->
+        <div class="modal-links" id="modal-links"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       NAVBAR
+  ══════════════════════════════ -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">
+      Bryan Wambo
+      <span class="nav-badge">Cybersec</span>
+    </a>
+    <div class="nav-links">
+      <a href="#experience"     class="nav-link" data-fr="Expérience"  data-en="Experience">Expérience</a>
+      <a href="#projects"       class="nav-link" data-fr="Projets"     data-en="Projects">Projets</a>
+      <a href="#skills"         class="nav-link" data-fr="Compétences" data-en="Skills">Compétences</a>
+      <a href="#education"      class="nav-link" data-fr="Formation"   data-en="Education">Formation</a>
+      <a href="#contact"        class="nav-link" data-fr="Contact"     data-en="Contact">Contact</a>
+      <a href="mailto:wambobryan7@gmail.com" class="nav-cta"
+         data-fr="Me contacter →" data-en="Contact me →">Me contacter →</a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════
+       HERO
+  ══════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-inner">
+
+      <div class="hero-eyebrow">
+        <span class="eyebrow-line"></span>
+        <span data-fr="Cybersecurity Student — Ecole-IT — Belgique"
+              data-en="Cybersecurity Student — Ecole-IT — Belgium">
+          Cybersecurity Student — Ecole-IT — Belgique
+        </span>
+      </div>
+
+      <h1 class="hero-name">
+        <span class="name-light">Bryan</span><br>
+        <span class="name-color" id="hero-scramble">Wambo.</span>
+      </h1>
+
+      <div class="hero-subtitle">
+        <span class="hero-role"
+              data-fr="Sécurité & Infrastructure IT"
+              data-en="Security & IT Infrastructure">
+          Sécurité & Infrastructure IT
+        </span>
+        <div class="hero-chips">
+          <span class="chip chip-blue">
+            <span class="chip-pulse"></span>
+            <span data-fr="Disponible pour stage" data-en="Available for internship">Disponible pour stage</span>
+          </span>
+          <span class="chip chip-green">NIS2 · Entra ID · 2FA</span>
+          <span class="chip chip-amber">
+            <span data-fr="Test d'intrusion · Audit" data-en="Penetration testing · Audit">Test d'intrusion · Audit</span>
+          </span>
+        </div>
+      </div>
+
+      <p class="hero-bio"
+         data-fr="Mon parcours m'a permis de découvrir et pratiquer différents aspects de la cybersécurité — sécurité des réseaux, gestion des identités, protection des systèmes. Je cherche une expérience professionnelle où je pourrai apprendre aux côtés de professionnels du domaine et contribuer concrètement à des projets liés à la sécurité informatique."
+         data-en="My journey has allowed me to discover and practice various aspects of cybersecurity — network security, identity management, and system protection. I am looking for a professional experience where I can learn alongside domain experts and make a meaningful contribution to security projects.">
+        Mon parcours m'a permis de découvrir et pratiquer différents aspects de la cybersécurité — sécurité des réseaux, gestion des identités, protection des systèmes. Je cherche une expérience professionnelle où je pourrai apprendre aux côtés de professionnels du domaine et contribuer concrètement à des projets liés à la sécurité informatique.
+      </p>
+
+      <div class="hero-actions">
+        <a href="mailto:wambobryan7@gmail.com" class="btn-primary">
+          <span data-fr="M'envoyer un message" data-en="Send me a message">M'envoyer un message</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="#experience" class="btn-secondary">
+          <span data-fr="Mon parcours" data-en="My experience">Mon parcours</span>
+          <span class="btn-arrow">↓</span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Stats flottantes -->
+    <div class="hero-aside">
+      <div class="aside-stat">
+        <div class="aside-num">150<em>+</em></div>
+        <div class="aside-label"
+             data-fr="Utilisateurs 2FA déployés"
+             data-en="2FA users deployed">
+          Utilisateurs 2FA déployés
+        </div>
+      </div>
+      <div class="aside-stat">
+        <div class="aside-num">2<em>×</em></div>
+        <div class="aside-label"
+             data-fr="Stages IT réalisés"
+             data-en="IT internships completed">
+          Stages IT réalisés
+        </div>
+      </div>
+      <div class="aside-stat">
+        <div class="aside-num">NIS2</div>
+        <div class="aside-label"
+             data-fr="Audit de conformité"
+             data-en="Compliance audit">
+          Audit de conformité
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <span class="scroll-track"></span>
+      <span data-fr="Défiler" data-en="Scroll">Défiler</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       01 — EXPERIENCE
+  ══════════════════════════════ -->
+  <div class="section-wrap" id="experience">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2 class="section-title"
+          data-fr="Expérience professionnelle"
+          data-en="Professional Experience">
+        Expérience professionnelle
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <!-- Rempli par render.js -->
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- ══════════════════════════════
+       02 — PROJETS
+  ══════════════════════════════ -->
+  <div class="section-wrap section-alt" id="projects">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2 class="section-title"
+          data-fr="Projets"
+          data-en="Projects">
+        Projets
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <!-- Rempli par render.js -->
+    <div class="projects-grid" id="projects-grid"></div>
+  </div>
+
+  <!-- ══════════════════════════════
+       03 — CERTIFICATIONS
+  ══════════════════════════════ -->
+  <div class="section-wrap" id="certifications">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2 class="section-title"
+          data-fr="Certifications"
+          data-en="Certifications">
+        Certifications
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+          <circle cx="12" cy="8" r="6"/>
+          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      </div>
+      <div class="cert-body">
+        <div class="cert-name">Introduction to Cybersecurity</div>
+        <div class="cert-issuer">Cisco Networking Academy</div>
+        <div class="cert-id">ID : c34c7118-6744-4b1a-83f0-f0b88b4aed83</div>
+      </div>
+      <div class="cert-date">Sept. 2025</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       04 — COMPÉTENCES
+  ══════════════════════════════ -->
+  <div class="section-wrap section-alt" id="skills">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2 class="section-title"
+          data-fr="Compétences"
+          data-en="Skills">
+        Compétences
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <!-- Rempli par render.js -->
+    <div class="skills-grid" id="skills-grid"></div>
+  </div>
+
+  <!-- ══════════════════════════════
+       05 — FORMATION
+  ══════════════════════════════ -->
+  <div class="section-wrap" id="education">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <h2 class="section-title"
+          data-fr="Formation"
+          data-en="Education">
+        Formation
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <!-- Rempli par render.js -->
+    <div class="edu-grid" id="edu-grid"></div>
+  </div>
+
+  <!-- ══════════════════════════════
+       06 — RECOMMANDATION
+  ══════════════════════════════ -->
+  <div class="section-wrap section-alt" id="recommandations">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2 class="section-title"
+          data-fr="Recommandation"
+          data-en="Recommendation">
+        Recommandation
+      </h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="testimonial">
+      <p class="testimonial-body"
+         data-fr="J'ai eu la chance de former Bryan Wambo en développement web, puis sur Symfony, Node.js, Kubernetes et les bases du DevOps. Bryan s'est rapidement distingué par <em>sa ponctualité, son sérieux et son implication</em>. Toujours au premier rang, il pose des questions pertinentes et montre une réelle envie de comprendre en profondeur. C'est une personne intègre, respectueuse, avec un très bon état d'esprit. Techniquement, <em>il n'hésite pas à creuser les sujets, à expérimenter et à aller au-delà de ce qui est demandé</em>. Sa plus grande force est sa résilience."
+         data-en="I had the chance to train Bryan Wambo in web development, then on Symfony, Node.js, Kubernetes, and DevOps fundamentals. Bryan quickly stood out for <em>his punctuality, seriousness, and commitment</em>. Always in the front row, he asks relevant questions and shows a genuine desire to understand in depth. He is an honest, respectful person with a very positive mindset. Technically, <em>he does not hesitate to dig deeper, experiment, and go beyond what is asked</em>. His greatest strength is his resilience.">
+        J'ai eu la chance de former Bryan Wambo en développement web, puis sur Symfony, Node.js, Kubernetes et les bases du DevOps. Bryan s'est rapidement distingué par <em>sa ponctualité, son sérieux et son implication</em>. Toujours au premier rang, il pose des questions pertinentes et montre une réelle envie de comprendre en profondeur. C'est une personne intègre, respectueuse, avec un très bon état d'esprit. Techniquement, <em>il n'hésite pas à creuser les sujets, à expérimenter et à aller au-delà de ce qui est demandé</em>. Sa plus grande force est sa résilience.
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">FH</div>
+        <div>
+          <div class="testimonial-name">Farid H.</div>
+          <div class="testimonial-role">G33K & Solution Engineer · Tekina Bootcamp — LinkedIn, nov. 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       07 — CONTACT
+  ══════════════════════════════ -->
+  <div id="contact-bg">
+    <div class="contact-inner" id="contact">
+      <div class="contact-pre">07 — Contact</div>
+      <h2 class="contact-heading">
+        <span data-fr="Parlons de votre" data-en="Let's talk about your">Parlons de votre</span><br>
+        <em data-fr="sécurité." data-en="security.">sécurité.</em>
+      </h2>
+      <p class="contact-sub"
+         data-fr="Je cherche un stage ou une alternance en cybersécurité. Basé en Belgique, ouvert à toute opportunité d'apprentissage et d'échange. N'hésitez pas à m'écrire."
+         data-en="I am looking for an internship or apprenticeship in cybersecurity. Based in Belgium, open to any learning opportunity. Feel free to reach out.">
+        Je cherche un stage ou une alternance en cybersécurité. Basé en Belgique, ouvert à toute opportunité d'apprentissage et d'échange. N'hésitez pas à m'écrire.
+      </p>
+      <a href="mailto:wambobryan7@gmail.com" class="contact-btn">
+        wambobryan7@gmail.com →
+      </a>
+      <div class="contact-links">
+        <a href="https://www.linkedin.com/in/bryan-wambo" target="_blank" rel="noopener" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </a>
+        <a href="https://github.com/Wabryan-IT" target="_blank" rel="noopener" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub
+        </a>
+        <span class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.72a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          +32 472 29 25 05
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       FOOTER
+  ══════════════════════════════ -->
+  <footer>
+    <span class="footer-copy">
+      © 2026 Bryan Wambo —
+      <span data-fr="Belgique" data-en="Belgium">Belgique</span>
+    </span>
+    <div class="footer-status">
+      <span class="status-dot"></span>
+      <span data-fr="Disponible pour un stage en cybersécurité"
+            data-en="Available for a cybersecurity internship">
+        Disponible pour un stage en cybersécurité
+      </span>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════
+       SCRIPTS (ES modules)
+  ══════════════════════════════ -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

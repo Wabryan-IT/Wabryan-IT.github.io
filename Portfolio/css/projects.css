@@ -1,0 +1,416 @@
+/* ─────────────────────────────────────────
+   PROJECTS — Cards + Modal
+───────────────────────────────────────── */
+
+/* ── PROJECT GRID ── */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── PROJECT CARD ── */
+.project-card {
+  background: var(--bg-2);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  cursor: none;
+  transition:
+    transform     0.35s var(--ease-spring),
+    border-color  0.3s,
+    box-shadow    0.3s,
+    var(--tr-theme);
+  animation: fadeUp 0.6s var(--ease-out) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 35%;
+}
+
+[data-theme="light"] .project-card { cursor: pointer; }
+
+.project-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: var(--b2);
+  box-shadow: 0 20px 60px var(--shadow);
+}
+
+/* Card thumbnail */
+.card-thumb {
+  width: 100%;
+  height: 200px;
+  background: var(--bg-3);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.project-card:hover .card-thumb img { transform: scale(1.05); }
+
+/* Placeholder when no image */
+.thumb-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--t3);
+}
+
+.thumb-placeholder svg { width: 32px; height: 32px; opacity: 0.4; }
+
+.thumb-placeholder span {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  opacity: 0.4;
+}
+
+/* Overlay on hover */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, oklch(7.5% 0.012 222 / 0.9) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+[data-theme="light"] .card-overlay {
+  background: linear-gradient(to top, oklch(11% 0.009 222 / 0.7) 0%, transparent 60%);
+}
+
+.project-card:hover .card-overlay { opacity: 1; }
+
+/* "See details" hint */
+.card-hint {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: white;
+  background: var(--brand);
+  padding: 0.3rem 0.85rem;
+  border-radius: 100px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s var(--ease-spring);
+  white-space: nowrap;
+}
+
+.project-card:hover .card-hint {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Card body */
+.card-body { padding: 1.5rem; }
+
+.card-category {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--t1);
+  margin-bottom: 0.5rem;
+}
+
+.card-excerpt {
+  font-size: 0.845rem;
+  color: var(--t2);
+  line-height: 1.62;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+  margin-top: 0.875rem;
+}
+
+.card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  color: var(--t3);
+  border: 1px solid var(--b1);
+  padding: 0.17rem 0.48rem;
+  border-radius: 100px;
+}
+
+
+/* ── PROJECT MODAL ── */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: oklch(4% 0.01 222 / 0.85);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+[data-theme="light"] #modal-overlay {
+  background: oklch(50% 0.008 222 / 0.5);
+}
+
+#modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.94);
+  z-index: 1001;
+  width: min(860px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--bg-2);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-2xl);
+  transition:
+    transform 0.4s var(--ease-spring),
+    opacity   0.4s var(--ease-out),
+    var(--tr-theme);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#modal::-webkit-scrollbar { width: 3px; }
+#modal::-webkit-scrollbar-thumb { background: var(--brand-dim); border-radius: 2px; }
+
+#modal-overlay.open #modal {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Modal image */
+.modal-image {
+  width: 100%;
+  height: 320px;
+  background: var(--bg-3);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  flex-shrink: 0;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: var(--t3);
+}
+
+.modal-img-placeholder svg { width: 48px; height: 48px; opacity: 0.3; }
+
+.modal-img-placeholder span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  opacity: 0.35;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: oklch(7.5% 0.012 222 / 0.6);
+  border: 1px solid var(--b2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--t2);
+  z-index: 10;
+  transition: background 0.2s, transform 0.25s var(--ease-spring), color 0.2s;
+}
+
+[data-theme="light"] .modal-close {
+  background: oklch(98.5% 0.003 222 / 0.7);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: var(--bg-3);
+  transform: scale(1.1) rotate(90deg);
+  color: var(--t1);
+}
+
+/* Modal content */
+.modal-content { padding: 2rem 2.5rem 2.5rem; }
+
+.modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.modal-category {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.modal-title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--t1);
+  margin-bottom: 1rem;
+}
+
+.modal-body {
+  font-size: 0.9375rem;
+  color: var(--t2);
+  line-height: 1.78;
+  margin-bottom: 1.5rem;
+}
+
+.modal-body p { margin-bottom: 0.75rem; }
+
+.modal-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--t3);
+  border: 1px solid var(--b1);
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+}
+
+/* Upload zone */
+.upload-zone {
+  width: 100%;
+  height: 200px;
+  border: 2px dashed var(--b2);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="light"] .upload-zone { cursor: pointer; }
+
+.upload-zone:hover {
+  border-color: var(--brand);
+  background: oklch(67% 0.19 222 / 0.05);
+}
+
+.upload-zone svg {
+  width: 36px;
+  height: 36px;
+  color: var(--t3);
+  transition: color 0.2s;
+}
+
+.upload-zone:hover svg { color: var(--brand); }
+
+.upload-zone span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--t3);
+  transition: color 0.2s;
+}
+
+.upload-zone:hover span { color: var(--brand); }
+
+/* Modal action links */
+.modal-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.modal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.55rem 1.25rem;
+  border-radius: 100px;
+  border: 1px solid var(--b2);
+  color: var(--t2);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.modal-link:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: oklch(67% 0.19 222 / 0.08);
+}
+
+[data-theme="light"] .modal-link { cursor: pointer; }
+
+.modal-link-primary {
+  background: var(--brand);
+  color: var(--bg);
+  border-color: var(--brand);
+}
+
+.modal-link-primary:hover {
+  background: oklch(67% 0.19 222 / 0.85);
+  color: white;
+}
+
+[data-theme="light"] .modal-link-primary { color: white; }

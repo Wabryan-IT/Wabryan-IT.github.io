@@ -1,0 +1,194 @@
+/* ─────────────────────────────────────────
+   HERO SECTION
+───────────────────────────────────────── */
+
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8rem 3rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background effects */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 55% at 73% 30%, oklch(67% 0.19 222 / 0.11) 0%, transparent 65%),
+    radial-gradient(ellipse 36% 42% at 10% 74%, oklch(70% 0.19 152 / 0.08) 0%, transparent 60%);
+  transition: var(--tr-theme);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(oklch(from var(--t1) l c h / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(from var(--t1) l c h / 0.025) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 20%, transparent 100%);
+}
+
+/* Content */
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1050px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 1.25rem;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 0.15s forwards;
+}
+
+.eyebrow-line {
+  width: 1.75rem;
+  height: 1px;
+  background: var(--brand);
+}
+
+.hero-name {
+  font-size: clamp(3rem, 9vw, 7.75rem);
+  font-weight: 800;
+  line-height: 0.93;
+  letter-spacing: -0.045em;
+  margin-bottom: 0.7rem;
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.3s forwards;
+}
+
+.hero-name .name-light { color: var(--t1); }
+.hero-name .name-color { color: var(--brand); }
+
+.hero-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.45s forwards;
+}
+
+.hero-role {
+  font-size: clamp(1.15rem, 2.5vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--t2);
+}
+
+.hero-chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.hero-bio {
+  max-width: 530px;
+  font-size: 1.0625rem;
+  line-height: 1.78;
+  color: var(--t2);
+  margin-bottom: 2.25rem;
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.6s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.75s forwards;
+}
+
+/* Aside stats */
+.hero-aside {
+  position: absolute;
+  right: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeLeft 0.9s var(--ease-out) 1s forwards;
+}
+
+.aside-stat {
+  text-align: right;
+  border-right: 2px solid var(--b2);
+  padding-right: 1.2rem;
+  transition: border-color 0.3s;
+}
+
+.aside-stat:hover { border-color: var(--brand); }
+
+.aside-num {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.aside-num em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+.aside-label {
+  font-size: 0.67rem;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Scroll hint */
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 3rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.67rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--t3);
+  opacity: 0;
+  animation: fadeUp 0.8s 1.2s forwards;
+}
+
+.scroll-track {
+  width: 32px;
+  height: 1px;
+  background: var(--t3);
+  overflow: hidden;
+  position: relative;
+}
+
+.scroll-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--brand);
+  left: -100%;
+  animation: trackAnim 2.2s ease-in-out 1.5s infinite;
+}

@@ -1,0 +1,203 @@
+/* ─────────────────────────────────────────
+   LAYOUT — Cursor, ScrollBar, Nav, Controls
+───────────────────────────────────────── */
+
+/* ── CURSOR ── */
+#cursor-dot,
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+}
+
+#cursor-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+
+#cursor-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid oklch(67% 0.19 222 / 0.38);
+  transition:
+    width  0.32s var(--ease-spring),
+    height 0.32s var(--ease-spring),
+    opacity 0.3s;
+}
+
+[data-theme="light"] #cursor-dot,
+[data-theme="light"] #cursor-ring { opacity: 0; }
+
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+  width: 50px;
+  height: 50px;
+  border-color: var(--brand);
+}
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 200;
+  background: linear-gradient(90deg, var(--brand), var(--green));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.08s linear;
+}
+
+/* ── CONTROLS CLUSTER (bottom right) ── */
+.ctrl-cluster {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.ctrl-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--b2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px var(--shadow);
+  transition:
+    transform 0.35s var(--ease-spring),
+    border-color 0.3s,
+    var(--tr-theme);
+}
+
+.ctrl-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--brand);
+  box-shadow: 0 6px 28px oklch(67% 0.19 222 / 0.22);
+}
+
+[data-theme="light"] .ctrl-btn { cursor: pointer; }
+
+.ctrl-btn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--t2);
+  transition: color 0.3s;
+}
+
+.ctrl-btn:hover svg { color: var(--brand); }
+
+/* Theme button spin */
+#btn-theme:hover { transform: scale(1.1) rotate(14deg); }
+
+.icon-sun  { display: none; }
+.icon-moon { display: block; }
+[data-theme="light"] .icon-sun  { display: block; }
+[data-theme="light"] .icon-moon { display: none; }
+
+/* Language button */
+.lang-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--t2);
+  transition: color 0.3s;
+}
+
+.ctrl-btn:hover .lang-label { color: var(--brand); }
+
+/* ── NAVBAR ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 3rem;
+  backdrop-filter: blur(24px) saturate(160%);
+  background: oklch(from var(--bg) l c h / 0.82);
+  border-bottom: 1px solid oklch(from var(--b1) l c h / 0.6);
+  transition: padding 0.3s, var(--tr-theme);
+}
+
+nav.scrolled { padding: 0.8rem 3rem; }
+
+.nav-logo {
+  font-size: 0.93rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.nav-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  padding: 0.18rem 0.52rem;
+  border-radius: 100px;
+  background: oklch(67% 0.19 222 / 0.10);
+  border: 1px solid oklch(67% 0.19 222 / 0.25);
+  color: var(--brand);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.875rem;
+}
+
+.nav-link {
+  font-size: 0.77rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--t2);
+  position: relative;
+  padding-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.28s var(--ease-out);
+}
+
+.nav-link:hover { color: var(--t1); }
+.nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+.nav-cta {
+  font-size: 0.77rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  border: 1px solid oklch(67% 0.19 222 / 0.32);
+  color: var(--brand);
+  background: oklch(67% 0.19 222 / 0.07);
+  transition: background 0.2s, transform 0.25s var(--ease-spring);
+}
+
+.nav-cta:hover {
+  background: oklch(67% 0.19 222 / 0.17);
+  transform: scale(1.04);
+}
