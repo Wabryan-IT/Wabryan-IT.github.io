@@ -1,108 +1,126 @@
-# Portfolio — Bryan Wambo
+<div align="center">
 
-Portfolio personnel en HTML/CSS/JS pur, structuré comme un vrai projet de développement.
-
-## Structure du projet
+<br/>
 
 ```
-portfolio-bryan-wambo/
-│
-├── index.html              ← Page principale (structure HTML uniquement)
-│
+██████╗ ██╗    ██╗    ██╗    ██╗ █████╗ ███╗   ███╗██████╗  ██████╗
+██╔══██╗██║    ██║    ██║    ██║██╔══██╗████╗ ████║██╔══██╗██╔═══██╗
+██████╔╝██║ █╗ ██║    ██║ █╗ ██║███████║██╔████╔██║██████╔╝██║   ██║
+██╔══██╗██║███╗██║    ██║███╗██║██╔══██║██║╚██╔╝██║██╔══██╗██║   ██║
+██████╔╝╚███╔███╔╝    ╚███╔███╔╝██║  ██║██║ ╚═╝ ██║██████╔╝╚██████╔╝
+╚═════╝  ╚══╝╚══╝      ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝  ╚═════╝
+```
+
+<br/>
+
+# Bryan Wambo — Personal Portfolio
+
+**Cybersecurity Student · Ecole-IT Belgium · Seeking Internship**
+
+<br/>
+
+[![Live](https://img.shields.io/badge/Live-wabryan--it.github.io-0066FF?style=for-the-badge&logo=github&logoColor=white)](https://wabryan-it.github.io)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-bryan--wambo-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/bryan-wambo)
+[![Email](https://img.shields.io/badge/Email-wambobryan7%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:wambobryan7@gmail.com)
+
+<br/>
+
+---
+
+</div>
+
+<br/>
+
+## Overview
+
+Personal cybersecurity portfolio built from scratch — no frameworks, no templates, no dependencies. Pure HTML, CSS and JavaScript, structured as a real development project.
+
+> **Choice. Action. Possibility.**
+
+<br/>
+
+## Features
+
+| | Feature | Description |
+|---|---|---|
+| **Dark / Light** | Theme toggle | Smooth transition, preference saved |
+| **FR / EN** | Language switch | Full bilingual — French and English |
+| **Projects** | Image gallery | Multiple cover images per project |
+| **Cursor** | Custom cursor | Magnetic ring that reacts on hover |
+| **Animations** | Scroll-driven | CSS-native entrance animations |
+| **Mobile** | Responsive | Optimized for all screen sizes |
+| **Performance** | Lightweight | No external dependencies |
+
+<br/>
+
+## Project Structure
+
+```
+portfolio/
+├── index.html          ← Entry point
 ├── css/
-│   ├── variables.css       ← Design tokens (couleurs oklch, typographie, espacements)
-│   ├── base.css            ← Reset, styles globaux, animations, boutons, badges
-│   ├── layout.css          ← Cursor, scroll bar, navbar, boutons de contrôle
-│   ├── hero.css            ← Section hero (nom, bio, stats, scroll hint)
-│   ├── sections.css        ← Experience, Skills, Education, Certif, Contact, Footer
-│   ├── projects.css        ← Cards projet + modale détail + upload image
-│   └── responsive.css      ← Media queries (mobile < 900px, < 580px)
-│
-├── js/
-│   ├── data.js             ← ✏️  TOUT LE CONTENU (textes FR/EN, projets, compétences...)
-│   ├── main.js             ← Point d'entrée — initialise tous les modules
-│   ├── cursor.js           ← Curseur custom + barre de progression scroll
-│   ├── theme.js            ← Toggle dark / light mode
-│   ├── lang.js             ← Switcher FR / EN
-│   ├── scramble.js         ← Animation de texte scramble (hero)
-│   ├── render.js           ← Construit le DOM des sections dynamiques
-│   └── modal.js            ← Modale projet (ouvrir, fermer, upload image)
-│
-└── assets/
-    └── images/             ← Dossier pour vos images (screenshots projets, etc.)
+│   ├── variables.css   ← Design tokens (colors, fonts, spacing)
+│   ├── base.css        ← Global styles & animations
+│   ├── layout.css      ← Navigation & controls
+│   ├── hero.css        ← Hero section
+│   ├── sections.css    ← All content sections
+│   ├── projects.css    ← Project cards & gallery
+│   └── responsive.css  ← Mobile breakpoints
+└── js/
+    ├── data.js         ← All content lives here (edit this)
+    ├── main.js         ← Entry point
+    ├── render.js       ← Dynamic DOM builder
+    ├── modal.js        ← Project gallery logic
+    ├── theme.js        ← Dark / light mode
+    ├── lang.js         ← FR / EN switcher
+    ├── cursor.js       ← Custom cursor
+    └── scramble.js     ← Hero text effect
 ```
 
-## Modifier le contenu
+<br/>
 
-Tout le contenu est centralisé dans **`js/data.js`**.  
-Pas besoin de toucher au HTML ou au CSS pour :
+## Built With
 
-- Changer vos textes (FR et EN)
-- Ajouter / modifier / supprimer un projet
-- Mettre à jour vos compétences
-- Modifier vos expériences
-- Ajouter des images de projets (via `image: 'assets/images/mon-image.jpg'`)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=flat-square&logo=github&logoColor=white)
 
-## Ajouter un projet
+<br/>
 
-Dans `js/data.js`, ajoutez un objet dans le tableau `PROJECTS` :
+## Edit Content
 
-```js
-{
-  id: 'mon-projet',                  // identifiant unique
-  category_fr: 'Projet personnel',
-  category_en: 'Personal project',
-  badge_fr: 'Cybersécurité',
-  badge_en: 'Cybersecurity',
-  title_fr: 'Nom du projet',
-  title_en: 'Project name',
-  org_fr: 'Associé à ...',
-  org_en: 'Associated with ...',
-  excerpt_fr: 'Courte description (affichée sur la carte).',
-  excerpt_en: 'Short description (shown on the card).',
-  body_fr: '<p>Description longue dans la modale.</p>',
-  body_en: '<p>Long description in the modal.</p>',
-  tags: ['Tag 1', 'Tag 2', 'Tag 3'],
-  github: 'https://github.com/Wabryan-IT/mon-repo',
-  live: null,                        // ou une URL si démo disponible
-  image: 'assets/images/mon-projet.jpg',  // ou null
-}
+Everything is centralized in **`js/data.js`**.  
+Open that single file to update your bio, experiences, projects, skills and education. The rest updates automatically.
+
+<br/>
+
+## Run Locally
+
+```bash
+# Clone
+git clone https://github.com/Wabryan-IT/Wabryan-IT.github.io.git
+
+# Serve (VS Code Live Server extension or Node)
+npx serve .
 ```
 
-## Mise en ligne
+> Opening `index.html` directly won't work — ES modules require a local server.
 
-### Option 1 — GitHub Pages (recommandé)
-1. Créez un repo `Wabryan-IT.github.io` sur GitHub
-2. Uploadez tous les fichiers
-3. Settings → Pages → Deploy from branch → main
-4. URL : `https://wabryan-it.github.io`
+<br/>
 
-### Option 2 — Netlify Drop
-1. Zippez le dossier
-2. Déposez le zip sur `netlify.com/drop`
-3. En ligne en 30 secondes
+---
 
-### Option 3 — Vercel
-1. `vercel.com` → Add New → Upload
-2. Déposez le dossier
+<div align="center">
 
-## Développement local
+<br/>
 
-Ouvrez simplement `index.html` dans votre navigateur.  
-> Les modules ES (`import/export`) nécessitent un serveur local pour fonctionner correctement.  
-> Utilisez l'extension **Live Server** sur VS Code, ou :
-> ```bash
-> npx serve .
-> ```
+**Bryan Wambo** · Cybersecurity Student · Belgium · 2026
 
-## Fonctionnalités
+<br/>
 
-- Mode sombre / clair (bouton flottant, mémorisé)
-- Switcher FR / EN (bouton flottant, mémorisé)
-- Curseur custom avec anneau magnétique
-- Effet scramble sur le nom
-- Projets : carte avec image + modale détaillée
-- Upload d'image par projet (sauvegardé localement)
-- Animations CSS scroll-driven (entrée au scroll)
-- Boutons magnétiques
-- Responsive mobile
+[![Visit Portfolio](https://img.shields.io/badge/Visit%20Portfolio-%230066FF.svg?style=for-the-badge&logoColor=white)](https://wabryan-it.github.io)
+
+<br/>
+
+</div>
