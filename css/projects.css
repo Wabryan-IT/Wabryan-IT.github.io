@@ -414,3 +414,202 @@
 }
 
 [data-theme="light"] .modal-link-primary { color: white; }
+
+
+/* ══════════════════════════════════════════
+   CAROUSEL — Images multiples dans la modale
+══════════════════════════════════════════ */
+
+/* Placeholder quand pas d'image */
+.carousel-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--t3);
+}
+
+.carousel-placeholder svg  { width: 48px; height: 48px; opacity: 0.3; }
+.carousel-placeholder span { font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.35; }
+
+/* Wrapper principal du carrousel */
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Track — contient toutes les slides */
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chaque slide */
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  pointer-events: none;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── NAVIGATION PREV / NEXT ── */
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: oklch(7.5% 0.012 222 / 0.7);
+  border: 1px solid var(--b2);
+  backdrop-filter: blur(8px);
+  color: var(--t1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, transform 0.25s var(--ease-spring), border-color 0.2s;
+}
+
+[data-theme="light"] .carousel-nav {
+  background: oklch(98.5% 0.003 222 / 0.8);
+  cursor: pointer;
+}
+
+.carousel-nav:hover {
+  background: var(--bg-2);
+  border-color: var(--brand);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-prev { left:  0.875rem; }
+.carousel-next { right: 0.875rem; }
+
+/* ── DELETE BUTTON ── */
+.carousel-del {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: oklch(7.5% 0.012 222 / 0.75);
+  border: 1px solid oklch(100% 0 0 / 0.15);
+  backdrop-filter: blur(8px);
+  color: oklch(80% 0.01 222);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 11;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, color 0.2s, transform 0.25s var(--ease-spring);
+}
+
+[data-theme="light"] .carousel-del { cursor: pointer; }
+
+.carousel-slide.active:hover .carousel-del { opacity: 1; }
+.carousel-slide.active .carousel-del:hover {
+  background: oklch(50% 0.22 25 / 0.9);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* ── DOTS ── */
+.carousel-dots {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.4rem;
+  z-index: 10;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: oklch(100% 0 0 / 0.4);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.25s var(--ease-spring), width 0.25s var(--ease-spring);
+  padding: 0;
+}
+
+[data-theme="light"] .carousel-dot { cursor: pointer; background: oklch(0% 0 0 / 0.3); }
+
+.carousel-dot.active {
+  background: var(--brand);
+  width: 20px;
+  border-radius: 4px;
+}
+
+[data-theme="light"] .carousel-dot.active { background: var(--brand); }
+
+/* ── COUNTER ── */
+.carousel-counter {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: oklch(90% 0 0);
+  background: oklch(7.5% 0.012 222 / 0.65);
+  backdrop-filter: blur(6px);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  z-index: 10;
+}
+
+[data-theme="light"] .carousel-counter {
+  background: oklch(98.5% 0.003 222 / 0.8);
+  color: var(--t2);
+}
+
+/* ── CARD IMAGE COUNT BADGE ── */
+.card-img-count {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 0.4rem;
+  border-radius: 100px;
+  background: var(--brand);
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 580px) {
+  .carousel-nav { width: 34px; height: 34px; }
+  .carousel-prev { left:  0.5rem; }
+  .carousel-next { right: 0.5rem; }
+}

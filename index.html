@@ -64,17 +64,17 @@
   <div id="modal-overlay">
     <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
 
-      <!-- Image -->
-      <div class="modal-image">
-        <div class="modal-img-placeholder" id="modal-img-ph">
+      <!-- Carrousel images -->
+      <div class="modal-image" id="carousel-wrap">
+        <!-- Rempli dynamiquement par modal.js -->
+        <div class="carousel-placeholder" id="modal-img-ph">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="3"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
-          <span id="modal-img-ph-text">Aucune image</span>
+          <span id="modal-img-ph-text">Aucune image ajoutée</span>
         </div>
-        <img id="modal-img" src="" alt="" style="display:none;"/>
       </div>
 
       <!-- Close -->
@@ -99,7 +99,7 @@
         <div class="modal-tags" id="modal-tags"></div>
 
         <!-- Upload image -->
-        <div class="modal-section-label" id="modal-label-image">Image du projet</div>
+        <div class="modal-section-label" id="modal-label-image">Images du projet</div>
         <div class="upload-zone" id="upload-zone" role="button" tabindex="0"
              aria-label="Ajouter une image"
              onkeydown="if(event.key==='Enter')this.click()">
@@ -108,7 +108,7 @@
             <line x1="12" y1="12" x2="12" y2="21"/>
             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
           </svg>
-          <span id="upload-hint-text">Cliquez pour ajouter une image</span>
+          <span id="upload-hint-text">Ajouter une image (max 3)</span>
         </div>
         <input type="file" id="file-input" accept="image/*"/>
 

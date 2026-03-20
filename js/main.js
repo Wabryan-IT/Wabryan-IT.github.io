@@ -26,9 +26,9 @@ function initMagnetic() {
 }
 
 /* ── RENDER ALL DYNAMIC SECTIONS ── */
-function renderAll(images) {
+function renderAll(store) {
   renderExperience();
-  renderProjects(images);
+  renderProjects(store);
   renderSkills();
   renderEducation();
   initMagnetic();

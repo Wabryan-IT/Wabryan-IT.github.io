@@ -6,6 +6,7 @@
 
 import { EXPERIENCES, PROJECTS, SKILLS, EDUCATION } from './data.js';
 import { currentLang } from './lang.js';
+import { getProjectCover } from './modal.js';
 
 /* ── SVG ICONS ── */
 const ICONS = {
@@ -69,20 +70,26 @@ export function renderExperience() {
 }
 
 /* ── PROJECTS ── */
-export function renderProjects(images = {}) {
+export function renderProjects(store = {}) {
   const grid = document.getElementById('projects-grid');
   if (!grid) return;
   const lang = getLang();
   const hint = lang === 'fr' ? 'Voir le détail →' : 'View details →';
 
   grid.innerHTML = PROJECTS.map(p => {
-    const imgSrc = images[p.id] || p.image;
-    const thumbHTML = imgSrc
-      ? `<img src="${imgSrc}" alt="${p[`title_${lang}`]}" loading="lazy"/>`
+    const coverSrc = getProjectCover(p.id, store) || (p.images && p.images[0]) || null;
+    const imgCount = (store[p.id] || []).length;
+
+    const thumbHTML = coverSrc
+      ? `<img src="${coverSrc}" alt="${p[`title_${lang}`]}" loading="lazy"/>`
       : `<div class="thumb-placeholder">
            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
            <span>${lang === 'fr' ? 'Cliquez pour voir le projet' : 'Click to see project'}</span>
          </div>`;
+
+    const imgCountBadge = imgCount > 1
+      ? `<div class="card-img-count">${imgCount}</div>`
+      : '';
 
     const tagsHTML = p.tags.map(t => `<span class="card-tag">${t}</span>`).join('');
 
@@ -94,6 +101,7 @@ export function renderProjects(images = {}) {
            onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
         <div class="card-thumb">
           ${thumbHTML}
+          ${imgCountBadge}
           <div class="card-overlay"></div>
           <div class="card-hint">${hint}</div>
         </div>

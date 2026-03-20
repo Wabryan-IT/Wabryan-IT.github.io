@@ -44,10 +44,12 @@ export const TRANSLATIONS = {
     footer_country:   { fr: 'Belgique', en: 'Belgium' },
   },
   modal: {
-    technologies: { fr: 'Technologies', en: 'Technologies' },
-    image_label:  { fr: 'Image du projet', en: 'Project image' },
-    upload_hint:  { fr: 'Cliquez pour ajouter une image', en: 'Click to add an image' },
-    img_none:     { fr: 'Aucune image', en: 'No image yet' },
+    technologies:  { fr: 'Technologies',                   en: 'Technologies' },
+    image_label:   { fr: 'Images du projet',               en: 'Project images' },
+    upload_hint:   { fr: 'Ajouter une image (max 3)',      en: 'Add an image (max 3)' },
+    img_none:      { fr: 'Aucune image ajoutée',           en: 'No image added yet' },
+    img_count:     { fr: 'image(s)',                       en: 'image(s)' },
+    delete_img:    { fr: 'Supprimer cette image',          en: 'Delete this image' },
   },
 };
 
@@ -141,9 +143,9 @@ export const PROJECTS = [
     body_fr: `<p>Dans le cadre de ma formation en cybersécurité, j'ai conduit un audit de sécurité complet sur une application web e-commerce fictive, en adoptant à la fois une posture offensive et défensive.</p><p>Ce projet m'a permis de mettre en pratique des méthodologies d'analyse de vulnérabilités, de rédiger une documentation structurée, et de proposer des mesures correctives concrètes. Les détails techniques sont disponibles sur mon profil GitHub.</p>`,
     body_en: `<p>As part of my cybersecurity training, I conducted a full security audit on a fictional e-commerce web application, adopting both an offensive and defensive stance.</p><p>This project allowed me to apply vulnerability analysis methodologies, write structured documentation, and propose concrete corrective measures. Technical details are available on my GitHub profile.</p>`,
     tags: ["Test d'intrusion", "Analyse de vulnérabilités", "Posture offensive & défensive", "Documentation technique", "Rapport d'audit"],
-    github: 'https://github.com/Wabryan-IT',
+    github: 'https://github.com/Wabryan-IT/SecureShop',
     live: null,
-    image: null, // sera chargé depuis localStorage si uploadé
+    images: [], // tableau — jusqu'à 3 images, chargées depuis localStorage
   },
 ];
 
