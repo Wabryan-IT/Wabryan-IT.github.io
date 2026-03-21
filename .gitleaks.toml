@@ -1,0 +1,17 @@
+title = "Gitleaks Configuration — Bryan Wambo Portfolio"
+
+[allowlist]
+  description = "Allowlist for known false positives in this static portfolio"
+
+  # Cisco certification ID is not a secret
+  regexes = [
+    "c34c7118-6744-4b1a-83f0-f0b88b4aed83",
+  ]
+
+  # Scramble charset string is not a secret
+  paths = [
+    "js/scramble.js",
+  ]
+
+  # Allow base64 in data URIs stored in localStorage logic
+  commits = []

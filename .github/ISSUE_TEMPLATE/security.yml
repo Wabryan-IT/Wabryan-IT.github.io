@@ -1,0 +1,21 @@
+name: Security Vulnerability
+description: Report a security issue (non-critical only — for critical issues email directly)
+labels: [security]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **For critical vulnerabilities, email wambobryan7@gmail.com directly.**
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability description
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: [Low, Medium, High]
+    validations:
+      required: true

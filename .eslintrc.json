@@ -1,0 +1,30 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-eval":           "error",
+    "no-implied-eval":   "error",
+    "no-new-func":       "error",
+    "no-script-url":     "error",
+    "no-unused-vars":    ["warn", { "argsIgnorePattern": "^_" }],
+    "no-undef":          "warn",
+    "eqeqeq":            "error",
+    "no-console":        ["warn", { "allow": ["warn", "error"] }],
+    "no-alert":          "off",
+    "no-debugger":       "error",
+    "prefer-const":      "warn",
+    "no-var":            "error",
+    "semi":              ["error", "always"],
+    "no-duplicate-imports": "error"
+  },
+  "globals": {
+    "openModal":  "writable",
+    "closeModal": "writable"
+  }
+}

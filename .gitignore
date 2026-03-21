@@ -16,7 +16,6 @@ npm-debug.log*
 
 # Dependency directories (if you ever add npm)
 node_modules/
-package-lock.json
 
 # Environment & secrets — NEVER commit these
 .env

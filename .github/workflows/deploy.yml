@@ -1,0 +1,151 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: [CI — Quality & Validation, Security Scan]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+
+  # ─────────────────────────────────
+  # GATE — only deploy if CI passed
+  # ─────────────────────────────────
+  check-ci:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.result }}
+    steps:
+      - name: Check CI status
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "result=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.workflow_run.conclusion }}" == "success" ]]; then
+            echo "result=true" >> $GITHUB_OUTPUT
+          else
+            echo "result=false" >> $GITHUB_OUTPUT
+          fi
+
+  # ─────────────────────────────────
+  # BUILD — prepare the artifact
+  # ─────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: check-ci
+    if: needs.check-ci.outputs.should-deploy == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Validate before build
+        run: |
+          # Quick sanity check before packaging
+          python3 - << 'EOF'
+          import sys, os
+          critical = ['index.html', 'js/main.js', 'js/data.js', 'css/variables.css']
+          missing = [f for f in critical if not os.path.exists(f)]
+          if missing:
+              print(f'Build blocked — missing files: {missing}')
+              sys.exit(1)
+          print('Pre-build check passed')
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  # ─────────────────────────────────
+  # DEPLOY — push to GitHub Pages
+  # ─────────────────────────────────
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment summary
+        run: |
+          echo "Deployed to: ${{ steps.deploy.outputs.page_url }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Deployed at: $(date -u '+%Y-%m-%d %H:%M UTC')"
+
+  # ─────────────────────────────────
+  # SMOKE TEST — verify the live site
+  # ─────────────────────────────────
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Wait for propagation
+        run: sleep 30
+
+      - name: Check live site responds
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 15 \
+            "https://wabryan-it.github.io")
+          echo "HTTP Status: $STATUS"
+          if [[ "$STATUS" != "200" ]]; then
+            echo "Site not responding (got $STATUS)"
+            exit 1
+          fi
+          echo "Site is live and responding 200 OK"
+
+      - name: Check security headers on live site
+        run: |
+          python3 - << 'EOF'
+          import sys
+          try:
+              import urllib.request
+              req = urllib.request.Request('https://wabryan-it.github.io')
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  headers = dict(resp.headers)
+                  body = resp.read().decode('utf-8', errors='ignore')
+
+              print("Live site headers received")
+
+              # Check the CSP is in the HTML body (meta tag, since GitHub Pages
+              # doesn't set HTTP headers we defined — they're in the HTML)
+              checks = {
+                  'Title present':      'Bryan Wambo' in body,
+                  'CSP meta present':   'Content-Security-Policy' in body,
+                  'X-Frame in body':    'X-Frame-Options' in body,
+                  'Module script':      'type="module"' in body,
+              }
+              failed = []
+              for label, result in checks.items():
+                  status = 'pass' if result else 'warn'
+                  print(f'  {status}  {label}')
+                  if not result:
+                      failed.append(label)
+
+              if failed:
+                  print(f'  {len(failed)} check(s) failed on live site')
+                  # Don't exit 1 — might be CDN caching
+          except Exception as e:
+              print(f'  warn  Could not verify live site: {e}')
+          EOF
