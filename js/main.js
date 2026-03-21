@@ -8,7 +8,7 @@ import { initTheme }                 from './theme.js';
 import { initLang }                          from './lang.js';
 import { scrambleText }              from './scramble.js';
 import { renderExperience, renderProjects, renderSkills, renderEducation } from './render.js';
-import { initModal, loadImages }     from './modal.js';
+import { initModal, loadImages, openModal } from './modal.js';
 
 /* ── MAGNETIC BUTTONS ── */
 function initMagnetic() {
@@ -32,6 +32,22 @@ function renderAll(store) {
   renderSkills();
   renderEducation();
   initMagnetic();
+}
+
+/* ── PROJECT CARD EVENTS — delegation, no inline onclick ── */
+function attachProjectCards() {
+  document.querySelectorAll('.project-card[data-project-id]').forEach(card => {
+    // Remove old listeners by replacing with clone
+    const clone = card.cloneNode(true);
+    card.parentNode.replaceChild(clone, card);
+
+    clone.addEventListener('click', () => {
+      openModal(clone.dataset.projectId);
+    });
+    clone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') openModal(clone.dataset.projectId);
+    });
+  });
 }
 
 /* ── BOOT ── */
@@ -58,10 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Modal — re-render cards after image upload/delete
   initModal((updatedStore) => {
     renderProjects(updatedStore);
+    attachProjectCards();
   });
+
+  // Attach card events after initial render
+  attachProjectCards();
 
   // Re-render quand la langue change
   document.addEventListener('langchange', () => {
     renderAll(loadImages());
+    attachProjectCards();
   });
 });

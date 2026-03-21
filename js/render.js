@@ -95,10 +95,9 @@ export function renderProjects(store = {}) {
 
     return `
       <div class="project-card"
-           onclick="window.openModal('${p.id}')"
+           data-project-id="${p.id}"
            role="button" tabindex="0"
-           aria-label="${p[`title_${lang}`]}"
-           onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
+           aria-label="${p[`title_${lang}`]}">
         <div class="card-thumb">
           ${thumbHTML}
           ${imgCountBadge}

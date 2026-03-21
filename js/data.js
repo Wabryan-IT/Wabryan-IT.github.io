@@ -25,9 +25,6 @@ export const TRANSLATIONS = {
     },
     cta1:   { fr: "M'envoyer un message", en: 'Send me a message' },
     cta2:   { fr: 'Mon parcours',         en: 'My experience' },
-    stat1:  { fr: 'Utilisateurs 2FA déployés', en: '2FA users deployed' },
-    stat2:  { fr: 'Stages IT réalisés',        en: 'IT internships completed' },
-    stat3:  { fr: 'Audit de conformité',       en: 'Compliance audit' },
     scroll: { fr: 'Défiler', en: 'Scroll' },
   },
   sections: {

@@ -4,37 +4,20 @@
 
 import { PROJECTS, TRANSLATIONS } from './data.js';
 
-const IMAGES_KEY = 'bw-images';
-const MAX_IMAGES = 3;
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB max per image
-
-/** Strip any dangerous tags from a string — basic XSS protection */
-function sanitize(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
+const IMAGES_KEY  = 'bw-images';
+const MAX_IMAGES  = 3;
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 /* ── STORAGE ── */
 export function loadImages() {
   try {
     const raw = JSON.parse(localStorage.getItem(IMAGES_KEY) || '{}');
-    // Migration : ancien format { id: "dataUrl" } → nouveau { id: ["dataUrl"] }
     const migrated = {};
     for (const [key, val] of Object.entries(raw)) {
-      if (typeof val === 'string') {
-        migrated[key] = [val];      // string → tableau
-      } else if (Array.isArray(val)) {
-        migrated[key] = val;        // déjà un tableau
-      }
+      migrated[key] = typeof val === 'string' ? [val] : Array.isArray(val) ? val : [];
     }
     return migrated;
-  } catch {
-    return {};
-  }
+  } catch { return {}; }
 }
 
 function saveImages(data) {
@@ -42,10 +25,15 @@ function saveImages(data) {
   catch (e) { console.warn('localStorage full', e); }
 }
 
-/** Retourne la première image d'un projet (pour la card) */
 export function getProjectCover(projectId, data) {
   const imgs = data[projectId];
   return (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : null;
+}
+
+function sanitize(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
 /* ── STATE ── */
@@ -58,22 +46,36 @@ let onRenderCb = null;
 export function initModal(onRender) {
   onRenderCb = onRender;
 
+  // Close on overlay click
   document.getElementById('modal-overlay')
     ?.addEventListener('click', e => {
       if (e.target.id === 'modal-overlay') closeModal();
     });
 
+  // Close button — use addEventListener (no inline onclick)
+  document.getElementById('modal-close-btn')
+    ?.addEventListener('click', closeModal);
+
+  // Keyboard: Esc / arrows
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape')     closeModal();
     if (e.key === 'ArrowLeft')  navigate(-1);
     if (e.key === 'ArrowRight') navigate(1);
   });
 
+  // File upload
   document.getElementById('file-input')
     ?.addEventListener('change', handleUpload);
 
+  // Upload zone click → trigger file input
   document.getElementById('upload-zone')
     ?.addEventListener('click', () => document.getElementById('file-input')?.click());
+
+  // Upload zone keyboard (Enter)
+  document.getElementById('upload-zone')
+    ?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('file-input')?.click();
+    });
 }
 
 /* ── OPEN ── */
@@ -82,29 +84,24 @@ export function openModal(id) {
   const p    = PROJECTS.find(x => x.id === id);
   if (!p) return;
 
-  // Recharge le store au cas où il aurait changé
   store      = loadImages();
   currentId  = id;
   currentIdx = 0;
 
-  // Textes
   document.getElementById('modal-category').textContent = sanitize(p[`category_${lang}`]);
   document.getElementById('modal-badge').textContent    = sanitize(p[`badge_${lang}`]);
   document.getElementById('modal-title').textContent    = sanitize(p[`title_${lang}`]);
   document.getElementById('modal-body').innerHTML       = p[`body_${lang}`];
   document.getElementById('modal-tags').innerHTML =
-    p.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+    p.tags.map(t => `<span class="modal-tag">${sanitize(t)}</span>`).join('');
 
-  // Labels traduits
   const T = TRANSLATIONS.modal;
   setLabel('modal-label-tech',  T.technologies[lang]);
   setLabel('modal-label-image', T.image_label[lang]);
   setLabel('upload-hint-text',  T.upload_hint[lang]);
 
-  // Liens
   document.getElementById('modal-links').innerHTML = buildLinks(p);
 
-  // Carrousel
   renderCarousel();
 
   document.getElementById('modal-overlay').classList.add('open');
@@ -151,10 +148,6 @@ function renderCarousel() {
   if (currentIdx >= imgs.length) currentIdx = imgs.length - 1;
   if (currentIdx < 0)            currentIdx = 0;
 
-  const showPrev = currentIdx > 0;
-  const showNext = currentIdx < imgs.length - 1;
-  const delLabel = T.delete_img[lang];
-
   wrap.innerHTML = `
     <div class="carousel">
       <div class="carousel-track">
@@ -162,7 +155,7 @@ function renderCarousel() {
           <div class="carousel-slide ${i === currentIdx ? 'active' : ''}" data-index="${i}">
             <img src="${src}" alt="Image ${i + 1}" loading="lazy"/>
             <button class="carousel-del" data-index="${i}"
-                    title="${delLabel}" aria-label="${delLabel}">
+                    title="${T.delete_img[lang]}" aria-label="${T.delete_img[lang]}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <polyline points="3 6 5 6 21 6"/>
@@ -174,7 +167,7 @@ function renderCarousel() {
           </div>`).join('')}
       </div>
 
-      ${showPrev ? `
+      ${currentIdx > 0 ? `
         <button class="carousel-nav carousel-prev" id="carousel-prev" aria-label="Précédent">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -182,7 +175,7 @@ function renderCarousel() {
           </svg>
         </button>` : ''}
 
-      ${showNext ? `
+      ${currentIdx < imgs.length - 1 ? `
         <button class="carousel-nav carousel-next" id="carousel-next" aria-label="Suivant">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -201,7 +194,7 @@ function renderCarousel() {
       <div class="carousel-counter">${currentIdx + 1} / ${imgs.length}</div>
     </div>`;
 
-  // Events
+  // Attach events AFTER innerHTML (no inline handlers)
   document.getElementById('carousel-prev')
     ?.addEventListener('click', e => { e.stopPropagation(); navigate(-1); });
 
@@ -211,7 +204,7 @@ function renderCarousel() {
   wrap.querySelectorAll('.carousel-dot').forEach(dot => {
     dot.addEventListener('click', e => {
       e.stopPropagation();
-      currentIdx = parseInt(dot.dataset.index);
+      currentIdx = parseInt(dot.dataset.index, 10);
       renderCarousel();
     });
   });
@@ -219,7 +212,7 @@ function renderCarousel() {
   wrap.querySelectorAll('.carousel-del').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      deleteImage(parseInt(btn.dataset.index));
+      deleteImage(parseInt(btn.dataset.index, 10));
     });
   });
 
@@ -230,16 +223,10 @@ function updateUploadZone() {
   const lang = document.documentElement.getAttribute('data-lang') || 'fr';
   const imgs = getImages();
   const zone = document.getElementById('upload-zone');
-  const T    = TRANSLATIONS.modal;
   if (!zone) return;
-
-  if (imgs.length >= MAX_IMAGES) {
-    zone.style.display = 'none';
-  } else {
-    zone.style.display = 'flex';
-    const hint = zone.querySelector('#upload-hint-text');
-    if (hint) hint.textContent = T.upload_hint[lang];
-  }
+  zone.style.display = imgs.length >= MAX_IMAGES ? 'none' : 'flex';
+  const hint = zone.querySelector('#upload-hint-text');
+  if (hint) hint.textContent = TRANSLATIONS.modal.upload_hint[lang];
 }
 
 function navigate(dir) {
@@ -253,12 +240,9 @@ function deleteImage(idx) {
   if (!currentId) return;
   const imgs = store[currentId] || [];
   imgs.splice(idx, 1);
-
   if (imgs.length === 0) delete store[currentId];
   else store[currentId] = imgs;
-
   saveImages(store);
-
   if (currentIdx >= imgs.length) currentIdx = Math.max(0, imgs.length - 1);
   renderCarousel();
   if (onRenderCb) onRenderCb(store);
@@ -268,19 +252,13 @@ function handleUpload(e) {
   const file = e.target.files[0];
   if (!file || !currentId) return;
 
-  // Validate MIME type (double-check beyond accept attribute)
   if (!file.type.startsWith('image/')) {
-    console.warn('Rejected: not an image file', file.type);
     e.target.value = '';
     return;
   }
-
-  // Validate file size (max 2 MB)
   if (file.size > MAX_FILE_SIZE) {
     const lang = document.documentElement.getAttribute('data-lang') || 'fr';
-    alert(lang === 'fr'
-      ? 'Image trop volumineuse (max 2 Mo)'
-      : 'Image too large (max 2 MB)');
+    alert(lang === 'fr' ? 'Image trop volumineuse (max 2 Mo)' : 'Image too large (max 2 MB)');
     e.target.value = '';
     return;
   }
@@ -300,7 +278,6 @@ function handleUpload(e) {
   reader.readAsDataURL(file);
 }
 
-/* ── HELPERS ── */
 function buildLinks(p) {
   const parts = [];
   if (p.github) parts.push(`
@@ -308,17 +285,17 @@ function buildLinks(p) {
        class="modal-link modal-link-primary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387
-          .599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416
-          -.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729
-          1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997
-          .107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931
-          0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176
-          0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803
-          c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23
-          .653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221
-          0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293
-          c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12
-          c0-6.627-5.373-12-12-12z"/>
+        .599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416
+        -.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729
+        1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997
+        .107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931
+        0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176
+        0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803
+        c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23
+        .653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221
+        0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293
+        c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12
+        c0-6.627-5.373-12-12-12z"/>
       </svg>
       GitHub →
     </a>`);
@@ -340,6 +317,6 @@ function setLabel(id, text) {
   if (el && text !== undefined) el.textContent = text;
 }
 
-/* ── PUBLIC API ── */
+/* Expose for use in main.js */
 window.openModal  = openModal;
 window.closeModal = closeModal;
