@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- ANIMATED HEADER -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,50:1e3a5f,100:3b82f6&height=200&section=header&text=Bryan%20Wambo&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Cybersecurity%20Student%20%7C%20Portfolio&descAlignY=58&descSize=18&descColor=93c5fd&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,50:1e3a5f,100:3b82f6&height=200&section=header&text=Wabryan-IT&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Cybersecurity%20Student%20%7C%20Portfolio&descAlignY=58&descSize=18&descColor=93c5fd&animation=fadeIn" width="100%"/>
 
 <!-- TYPING ANIMATION -->
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Syne&weight=700&size=22&pause=1000&color=3B82F6&center=true&vCenter=true&width=600&lines=Cybersecurity+Student+%40+Ecole-IT;NIS2+%7C+Microsoft+Entra+ID+%7C+2FA;Penetration+Testing+%7C+Audit;Available+for+Internship+%F0%9F%87%A7%F0%9F%87%AA)](https://git.io/typing-svg)
