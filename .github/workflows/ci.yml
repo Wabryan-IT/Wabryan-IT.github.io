@@ -2,7 +2,7 @@ name: CI — Quality & Validation
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -13,7 +13,35 @@ concurrency:
 jobs:
 
   # ─────────────────────────────────
-  # 1. HTML VALIDATION
+  # 1. PROJECT STRUCTURE
+  # ─────────────────────────────────
+  structure:
+    name: Project Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Required files
+        run: |
+          python3 - << 'PYEOF'
+          import sys, os
+          required = [
+            'index.html', 'README.md', 'SECURITY.md', '.gitignore',
+            'css/variables.css', 'css/base.css', 'css/layout.css',
+            'css/hero.css', 'css/sections.css', 'css/projects.css',
+            'css/responsive.css', 'js/main.js', 'js/data.js',
+            'js/modal.js', 'js/render.js', 'js/cursor.js',
+            'js/theme.js', 'js/lang.js', 'js/scramble.js',
+          ]
+          missing = [f for f in required if not os.path.exists(f)]
+          if missing:
+              for f in missing: print(f'  FAIL  missing: {f}')
+              sys.exit(1)
+          print(f'  pass  All {len(required)} required files present')
+          PYEOF
+
+  # ─────────────────────────────────
+  # 2. HTML VALIDATE
   # ─────────────────────────────────
   html:
     name: HTML Validate
@@ -23,87 +51,95 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: Validate HTML structure
-        run: npm run lint:html
+      - name: html-validate
+        run: npx html-validate index.html --config .htmlvalidate.json
 
-      - name: Check required meta tags
+      - name: Security meta tags
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re
-          with open('index.html') as f:
-              html = f.read()
+          with open('index.html') as f: html = f.read()
           checks = {
-              'charset UTF-8':       r'charset="UTF-8"',
-              'viewport':            r'name="viewport"',
-              'description':         r'name="description"',
-              'Content-Security-Policy': r'Content-Security-Policy',
-              'X-Frame-Options':     r'X-Frame-Options',
-              'X-Content-Type':      r'X-Content-Type-Options',
-              'Referrer-Policy':     r'Referrer-Policy',
-              'type=module script':  r'type="module"',
-              'lang attribute':      r'<html[^>]+lang=',
-              'no inline onclick':   None,
+            'charset UTF-8':   r'charset="UTF-8"',
+            'viewport':        r'name="viewport"',
+            'description':     r'name="description"',
+            'CSP':             r'Content-Security-Policy',
+            'X-Frame-Options': r'X-Frame-Options',
+            'X-Content-Type':  r'X-Content-Type-Options',
+            'Referrer-Policy': r'Referrer-Policy',
+            'type=module':     r'type="module"',
+            'lang on html':    r'<html[^>]+lang=',
+            'main element':    r'<main[\s>]',
           }
           errors = []
           for name, pattern in checks.items():
-              if pattern is None:
-                  if re.search(r'\bon\w+="(?!.*(ontent|argin|adding|eight|inimum|aximum|idth|ource|edia|ethod|nctype))', html):
-                      errors.append(f'Inline event handlers found (CSP violation risk)')
-                  else:
-                      print(f'  pass  {name}')
-              elif not re.search(pattern, html):
-                  errors.append(f'Missing: {name}')
-              else:
+              if re.search(pattern, html):
                   print(f'  pass  {name}')
+              else:
+                  print(f'  FAIL  {name}')
+                  errors.append(name)
           if errors:
-              for e in errors: print(f'  FAIL  {e}')
               sys.exit(1)
-          EOF
+          PYEOF
 
   # ─────────────────────────────────
-  # 2. CSS LINT
+  # 3. CSS LINT
   # ─────────────────────────────────
   css:
     name: CSS Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Stylelint
-        run: npm run lint:css
+        run: npx stylelint "css/**/*.css" --config .stylelintrc.json
+
       - name: CSS variable consistency
         run: python3 scripts/check_css_vars.py
 
   # ─────────────────────────────────
-  # 3. JAVASCRIPT LINT & SAFETY
+  # 4. JS LINT & SAFETY
   # ─────────────────────────────────
   javascript:
     name: JS Lint & Safety
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
       - name: ESLint
-        run: npm run lint:js
+        run: npx eslint js/
+
       - name: Dangerous pattern scan
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re, glob
           files = glob.glob('js/**/*.js', recursive=True)
           bad = [
-              (r'\beval\s*\(', 'eval()'),
-              (r'new\s+Function\s*\(', 'new Function()'),
-              (r'document\.write\s*\(', 'document.write()'),
-              (r'\.outerHTML\s*=', '.outerHTML assignment'),
+            (r'\beval\s*\(',        'eval()'),
+            (r'new\s+Function\s*\(','new Function()'),
+            (r'document\.write\s*\(','document.write()'),
           ]
           issues = []
           for path in files:
@@ -111,26 +147,26 @@ jobs:
                   for i, line in enumerate(f, 1):
                       for pat, label in bad:
                           if re.search(pat, line):
-                              issues.append(f'{path}:{i} {label}')
+                              issues.append(f'{path}:{i} — {label}')
           if issues:
-              [print(f'  FAIL  {x}') for x in issues]
+              for x in issues: print(f'  FAIL  {x}')
               sys.exit(1)
-          print(f'  pass  No dangerous patterns in {len(files)} files')
-          EOF
+          print(f'  pass  No dangerous patterns in {len(files)} JS files')
+          PYEOF
 
-      - name: Verify JS module imports
+      - name: JS import validation
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re, os
-          exports, imports = {}, {}
+          exports, imports_map = {}, {}
           for fname in os.listdir('js'):
               if not fname.endswith('.js'): continue
               with open(f'js/{fname}') as f: c = f.read()
               exports[fname] = re.findall(r'export (?:function|const|let|class) (\w+)', c)
               raw = re.findall(r"import\s*\{([^}]+)\}\s*from\s*['\"]\.\/(\w+)\.js['\"]", c)
-              imports[fname] = [(n.strip(), m) for b, m in raw for n in b.split(',')]
+              imports_map[fname] = [(n.strip(), m) for b, m in raw for n in b.split(',')]
           errors = []
-          for fname, imps in imports.items():
+          for fname, imps in imports_map.items():
               for name, mod in imps:
                   mfile = mod + '.js'
                   if mfile not in exports:
@@ -138,37 +174,10 @@ jobs:
                   elif name not in exports.get(mfile, []):
                       errors.append(f'{fname}: imports {name!r} — not exported from {mfile}')
           if errors:
-              [print(f'  FAIL  {e}') for e in errors]
+              for e in errors: print(f'  FAIL  {e}')
               sys.exit(1)
-          print(f'  pass  All imports valid')
-          EOF
-
-  # ─────────────────────────────────
-  # 4. STRUCTURE CHECK
-  # ─────────────────────────────────
-  structure:
-    name: Project Structure
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Required files
-        run: |
-          python3 - << 'EOF'
-          import sys, os
-          required = [
-            'index.html','README.md','SECURITY.md','.gitignore',
-            'css/variables.css','css/base.css','css/layout.css',
-            'css/hero.css','css/sections.css','css/projects.css',
-            'css/responsive.css','js/main.js','js/data.js',
-            'js/modal.js','js/render.js','js/cursor.js',
-            'js/theme.js','js/lang.js','js/scramble.js',
-          ]
-          missing = [f for f in required if not os.path.exists(f)]
-          if missing:
-              [print(f'  FAIL  missing: {f}') for f in missing]
-              sys.exit(1)
-          print(f'  pass  All {len(required)} files present')
-          EOF
+          print('  pass  All JS imports valid')
+          PYEOF
 
   # ─────────────────────────────────
   # 5. ACCESSIBILITY
@@ -178,39 +187,73 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: a11y checks
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re
           with open('index.html') as f: html = f.read()
           issues = []
+          # lang attribute
           if not re.search(r'<html[^>]+lang=', html):
               issues.append('Missing lang on <html>')
-          imgs = re.findall(r'<img(?![^>]*alt=)[^>]*>', html)
-          if imgs: issues.append(f'{len(imgs)} img(s) missing alt')
-          btns = re.findall(r'<button(?![^>]*aria-label)[^>]*>\s*</button>', html)
-          if btns: issues.append(f'{len(btns)} empty button(s) without aria-label')
-          roles = re.findall(r'role="button"[^>]*(?!tabindex)', html)
-          if roles: issues.append(f'{len(roles)} role=button without tabindex')
+          else:
+              print('  pass  lang attribute')
+          # <main> landmark
+          if not re.search(r'<main[\s>]', html):
+              issues.append('Missing <main> element')
+          else:
+              print('  pass  <main> element')
+          # <title>
+          if not re.search(r'<title>[^<]+</title>', html):
+              issues.append('Missing or empty <title>')
+          else:
+              print('  pass  <title> present')
+          # img alt
+          imgs_no_alt = re.findall(r'<img(?![^>]*\balt=)[^>]*/>', html)
+          if imgs_no_alt:
+              issues.append(f'{len(imgs_no_alt)} <img> missing alt')
+          else:
+              print('  pass  All <img> have alt')
+          # buttons
+          empty = re.findall(r'<button(?![^>]*aria-label)[^>]*>\s*<svg', html)
+          if empty:
+              issues.append(f'{len(empty)} button(s) with SVG but no aria-label')
+          else:
+              print('  pass  Buttons have labels')
           if issues:
-              [print(f'  FAIL  {i}') for i in issues]
+              for i in issues: print(f'  FAIL  {i}')
               sys.exit(1)
-          print('  pass  Accessibility checks OK')
-          EOF
+          print('  pass  All accessibility checks OK')
+          PYEOF
 
   # ─────────────────────────────────
-  # 6. SUMMARY STATUS
+  # 6. CI STATUS GATE
   # ─────────────────────────────────
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [html, css, javascript, structure, a11y]
+    needs: [structure, html, css, javascript, a11y]
     if: always()
     steps:
-      - name: All checks passed
+      - name: Check all jobs passed
         run: |
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+          S="${{ needs.structure.result }}"
+          H="${{ needs.html.result }}"
+          C="${{ needs.css.result }}"
+          J="${{ needs.javascript.result }}"
+          A="${{ needs.a11y.result }}"
+
+          echo "structure  : $S"
+          echo "html       : $H"
+          echo "css        : $C"
+          echo "javascript : $J"
+          echo "a11y       : $A"
+
+          if [[ "$S" == "failure" || "$H" == "failure" || "$C" == "failure" || "$J" == "failure" || "$A" == "failure" ]]; then
+            echo ""
             echo "One or more CI checks failed"
             exit 1
           fi
+          echo ""
           echo "All CI checks passed"

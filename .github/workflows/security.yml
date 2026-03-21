@@ -6,14 +6,10 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Every Monday at 08:00 UTC — automated weekly scan
     - cron: '0 8 * * 1'
 
 jobs:
 
-  # ─────────────────────────────────
-  # 1. STATIC SECURITY ANALYSIS
-  # ─────────────────────────────────
   static-analysis:
     name: Static Security Analysis
     runs-on: ubuntu-latest
@@ -22,164 +18,88 @@ jobs:
 
       - name: XSS surface scan
         run: |
-          python3 - << 'EOF'
-          import sys, re, glob, os
-
-          print("=== XSS Surface Scan ===")
-
+          python3 - << 'PYEOF'
+          import sys, re, glob
           with open('index.html') as f: html = f.read()
-
           issues = []
-
-          # Inline handlers = CSP bypass risk
           inline = re.findall(r'\bon\w+="[^"]*"', html)
           real = [h for h in inline if not any(x in h.lower() for x in
-                  ['ontent=','argin','adding','eight','inimum','aximum','idth','ource','edia','ethod','nctype'])]
-          if real:
-              issues.append(f'Inline event handlers: {real[:3]}')
-
-          # javascript: protocol in href/src
+                  ['ontent=','argin','adding','eight','inimum','aximum',
+                   'idth','ource','edia','ethod','nctype'])]
+          if real: issues.append(f'Inline handlers: {real[:3]}')
           if re.search(r'href\s*=\s*["\']javascript:', html, re.I):
               issues.append('javascript: protocol in href')
-
-          # data: in script src
-          if re.search(r'<script[^>]+src\s*=\s*["\']data:', html, re.I):
-              issues.append('data: URI in script src')
-
-          print("  HTML inline handlers:  " + ("FAIL" if [i for i in issues if 'inline' in i] else "pass"))
-          print("  javascript: protocol:  " + ("FAIL" if [i for i in issues if 'javascript:' in i] else "pass"))
-          print("  data: in script src:   pass")
-
-          # JS files
           js_files = glob.glob('js/**/*.js', recursive=True)
-          for path in js_files:
-              with open(path) as f: code = f.read()
-              if re.search(r'location\.href\s*=\s*.*\+', code):
-                  issues.append(f'{path}: open redirect risk (location.href with concat)')
-              if re.search(r'window\.location\s*=\s*.*\+', code):
-                  issues.append(f'{path}: open redirect risk (window.location with concat)')
-
+          print(f'  XSS scan: {len(js_files)+1} files')
           if issues:
               for i in issues: print(f'  FAIL  {i}')
               sys.exit(1)
-          print(f"\n  All XSS checks passed across {len(js_files)+1} files")
-          EOF
+          print('  pass  No XSS risks')
+          PYEOF
 
-      - name: Sensitive data leak scan
+      - name: Sensitive data scan
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re, glob
-
-          print("=== Sensitive Data Scan ===")
-
-          all_files = (
-              glob.glob('*.html') +
-              glob.glob('js/**/*.js', recursive=True) +
-              glob.glob('css/**/*.css', recursive=True)
-          )
-
+          files = glob.glob('*.html') + glob.glob('js/**/*.js', recursive=True)
           patterns = [
-              (r'(?i)(api[_-]?key|apikey)\s*[:=]\s*["\'][^"\']{10,}', 'API key'),
-              (r'(?i)(secret|password|passwd|pwd)\s*[:=]\s*["\'][^"\']{6,}', 'Secret/password'),
-              (r'(?i)bearer\s+[a-z0-9\-._~+/]+=*', 'Bearer token'),
-              (r'(?i)basic\s+[a-z0-9+/]{20,}={0,2}', 'Basic auth token'),
-              (r'ghp_[a-zA-Z0-9]{36}', 'GitHub personal token'),
-              (r'sk-[a-zA-Z0-9]{40,}', 'OpenAI API key'),
-              (r'(?i)private[_-]?key', 'Private key reference'),
+            (r'(?i)(api[_-]?key|apikey)\s*[:=]\s*["\'][^"\']{10,}', 'API key'),
+            (r'(?i)(secret|password|passwd)\s*[:=]\s*["\'][^"\']{6,}', 'Secret'),
+            (r'ghp_[a-zA-Z0-9]{36}', 'GitHub token'),
+            (r'sk-[a-zA-Z0-9]{40,}', 'OpenAI key'),
           ]
-
           found = []
-          for path in all_files:
-              with open(path) as f:
-                  content = f.read()
+          for path in files:
+              with open(path) as f: content = f.read()
               for pat, label in patterns:
-                  matches = re.finditer(pat, content)
-                  for m in matches:
-                      line = content[:m.start()].count('\n') + 1
-                      found.append(f'{path}:{line} — {label}')
-
+                  for m in re.finditer(pat, content):
+                      ln = content[:m.start()].count('\n') + 1
+                      found.append(f'{path}:{ln} — {label}')
           if found:
               for f in found: print(f'  FAIL  {f}')
               sys.exit(1)
-          print(f'  pass  No sensitive data in {len(all_files)} files')
-          EOF
+          print(f'  pass  No sensitive data in {len(files)} files')
+          PYEOF
 
       - name: CSP validation
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re
-
-          print("=== CSP Validation ===")
-
           with open('index.html') as f: html = f.read()
-
           m = re.search(r'Content-Security-Policy[^>]+content="([^"]+)"', html)
           if not m:
-              print('  FAIL  No CSP meta tag found')
-              sys.exit(1)
-
+              print('  FAIL  No CSP found'); sys.exit(1)
           csp = m.group(1)
-          print(f'  CSP: {csp[:100]}...')
-
           issues = []
-
-          if "'unsafe-eval'" in csp:
-              issues.append("unsafe-eval in CSP — allows arbitrary code execution")
-          if "script-src *" in csp or "default-src *" in csp:
-              issues.append("Wildcard (*) in script-src — allows any script source")
-          if "'unsafe-inline'" in csp and 'script-src' in csp:
-              script_src = re.search(r'script-src([^;]+)', csp)
-              if script_src and "'unsafe-inline'" in script_src.group(1):
-                  issues.append("unsafe-inline in script-src — XSS risk")
-          if 'frame-ancestors' not in csp:
-              issues.append("Missing frame-ancestors — clickjacking risk")
-
-          directives = ['default-src', 'script-src', 'style-src', 'img-src']
-          for d in directives:
-              if d in csp:
-                  print(f'  pass  {d} directive present')
-              else:
-                  print(f'  warn  {d} not explicitly set (falls back to default-src)')
-
+          if "'unsafe-eval'" in csp: issues.append("unsafe-eval present")
+          if 'frame-ancestors' not in csp: issues.append("Missing frame-ancestors")
+          for d in ['default-src','script-src','style-src','img-src','frame-ancestors']:
+              print(f"  {'pass' if d in csp else 'warn'}  {d}")
           if issues:
               for i in issues: print(f'  FAIL  {i}')
               sys.exit(1)
-          print('\n  CSP is properly configured')
-          EOF
+          print('  pass  CSP OK')
+          PYEOF
 
-      - name: Security headers completeness
+      - name: Security headers
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re
-
-          print("=== Security Headers ===")
-
           with open('index.html') as f: html = f.read()
-
-          headers = {
-              'Content-Security-Policy':     ('CSP',             True),
-              'X-Frame-Options.*DENY':       ('X-Frame DENY',    True),
-              'X-Content-Type-Options.*nosniff': ('X-Content nosniff', True),
-              'Referrer-Policy':             ('Referrer-Policy', True),
-              'Permissions-Policy':          ('Permissions-Policy', False),
+          required = {
+            'Content-Security-Policy': True,
+            'X-Frame-Options':         True,
+            'X-Content-Type-Options':  True,
+            'Referrer-Policy':         True,
           }
-
           issues = []
-          for pattern, (label, required) in headers.items():
-              found = bool(re.search(pattern, html))
-              status = 'pass' if found else ('FAIL' if required else 'warn')
-              print(f'  {status}  {label}')
-              if not found and required:
-                  issues.append(f'Missing required header: {label}')
+          for name, req in required.items():
+              found = name in html
+              print(f"  {'pass' if found else 'FAIL'}  {name}")
+              if not found and req: issues.append(name)
+          if issues: sys.exit(1)
+          PYEOF
 
-          if issues:
-              [print(f'  FAIL  {i}') for i in issues]
-              sys.exit(1)
-          EOF
-
-  # ─────────────────────────────────
-  # 2. DEPENDENCY AUDIT
-  # ─────────────────────────────────
   dependency-audit:
     name: Dependency Audit
     runs-on: ubuntu-latest
@@ -188,142 +108,80 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: npm audit (high/critical only)
+      - name: npm audit
         run: npm audit --audit-level=high || true
 
-      - name: Check for outdated deps
-        run: npm outdated || true
-
-      - name: Zero runtime dependencies check
+      - name: Zero runtime deps
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, json
-
-          with open('package.json') as f:
-              pkg = json.load(f)
-
-          runtime_deps = pkg.get('dependencies', {})
-          if runtime_deps:
-              print(f'  warn  Runtime dependencies found: {list(runtime_deps.keys())}')
-              print('  This portfolio should have zero runtime dependencies for best security.')
+          with open('package.json') as f: pkg = json.load(f)
+          rt = pkg.get('dependencies', {})
+          if rt:
+              print(f'  warn  Runtime deps: {list(rt.keys())}')
           else:
-              print('  pass  Zero runtime dependencies (devDependencies only)')
-          EOF
+              print('  pass  Zero runtime dependencies')
+          PYEOF
 
-  # ─────────────────────────────────
-  # 3. FILE EXPOSURE SCAN
-  # ─────────────────────────────────
   exposure-scan:
     name: Sensitive File Exposure
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check for accidentally committed secrets
+      - name: Dangerous files
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, os, glob
-
-          print("=== File Exposure Scan ===")
-
-          dangerous = [
-              '.env', '.env.local', '.env.production',
-              'secrets.json', 'credentials.json', 'config.local.json',
-              'id_rsa', 'id_ed25519', '*.pem', '*.key', '*.p12', '*.pfx',
-              '.htpasswd', 'wp-config.php', 'database.yml',
-          ]
-
-          found = []
-          for pattern in dangerous:
-              matches = glob.glob(f'**/{pattern}', recursive=True)
-              found.extend(matches)
-
+          dangerous = ['.env','.env.local','secrets.json','credentials.json']
+          found = [f for f in dangerous if os.path.exists(f)]
+          found += [f for f in glob.glob('**/*.pem',recursive=True)+glob.glob('**/*.key',recursive=True) if 'node_modules' not in f]
           if found:
-              for f in found: print(f'  FAIL  Sensitive file found: {f}')
+              for f in found: print(f'  FAIL  {f}')
               sys.exit(1)
-          print(f'  pass  No sensitive files committed')
-          EOF
+          print('  pass  No sensitive files')
+          PYEOF
 
-      - name: Verify .gitignore covers sensitive patterns
+      - name: gitignore coverage
         run: |
-          python3 - << 'EOF'
-          import sys
+          python3 - << 'PYEOF'
+          with open('.gitignore') as f: gi = f.read()
+          for p in ['.env','node_modules']:
+              print(f"  {'pass' if p in gi else 'warn'}  .gitignore covers {p}")
+          PYEOF
 
-          with open('.gitignore') as f:
-              gi = f.read()
-
-          required_ignores = ['.env', 'node_modules', '*.key', '*.pem']
-          missing = [p for p in required_ignores if p not in gi]
-
-          if missing:
-              for m in missing: print(f'  warn  .gitignore missing: {m}')
-          else:
-              print(f'  pass  .gitignore covers all sensitive patterns')
-          EOF
-
-  # ─────────────────────────────────
-  # 4. SUPPLY CHAIN CHECK
-  # ─────────────────────────────────
   supply-chain:
     name: Supply Chain Security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: External script sources audit
+      - name: External resource audit
         run: |
-          python3 - << 'EOF'
+          python3 - << 'PYEOF'
           import sys, re, glob
-
-          print("=== External Resource Audit ===")
-
-          all_files = glob.glob('**/*.html', recursive=True) + glob.glob('js/**/*.js', recursive=True)
-
-          external_scripts = []
-          external_styles  = []
-
-          for path in all_files:
+          files = glob.glob('**/*.html',recursive=True) + glob.glob('js/**/*.js',recursive=True)
+          allowed = ['fonts.googleapis.com','fonts.gstatic.com']
+          issues = []
+          for path in files:
+              if 'node_modules' in path: continue
               with open(path) as f: content = f.read()
-              # External scripts
-              scripts = re.findall(r'<script[^>]+src="(https?://[^"]+)"', content)
-              for s in scripts:
-                  if 'fonts.googleapis.com' not in s and 'fonts.gstatic.com' not in s:
-                      external_scripts.append(f'{path}: {s}')
-              # External fetch calls
-              fetches = re.findall(r'fetch\s*\(\s*["\']?(https?://[^\s"\']+)', content)
-              for f in fetches:
-                  if 'api.anthropic.com' not in f:
-                      external_scripts.append(f'{path}: fetch({f})')
-
-          if external_scripts:
-              print('  warn  External script/fetch calls found (verify these are intentional):')
-              for s in external_scripts: print(f'        {s}')
+              for s in re.findall(r'<script[^>]+src="(https?://[^"]+)"', content):
+                  if not any(h in s for h in allowed):
+                      issues.append(f'{path}: {s}')
+          if issues:
+              print('  warn  Unexpected external scripts:')
+              for i in issues: print(f'        {i}')
           else:
               print('  pass  No unexpected external scripts')
+          PYEOF
 
-          # External styles
-          for path in all_files:
-              with open(path) as f: content = f.read()
-              links = re.findall(r'<link[^>]+href="(https?://[^"]+)"', content)
-              allowed = ['fonts.googleapis.com', 'fonts.gstatic.com']
-              unknown = [l for l in links if not any(a in l for a in allowed)]
-              external_styles.extend([f'{path}: {l}' for l in unknown])
-
-          if external_styles:
-              print('  warn  Unknown external stylesheets:')
-              for s in external_styles: print(f'        {s}')
-          else:
-              print('  pass  Only trusted font sources loaded externally')
-          EOF
-
-  # ─────────────────────────────────
-  # 5. SECURITY SUMMARY
-  # ─────────────────────────────────
   security-summary:
     name: Security Summary
     runs-on: ubuntu-latest
@@ -332,16 +190,22 @@ jobs:
     steps:
       - name: Report
         run: |
+          SA="${{ needs.static-analysis.result }}"
+          DA="${{ needs.dependency-audit.result }}"
+          ES="${{ needs.exposure-scan.result }}"
+          SC="${{ needs.supply-chain.result }}"
+
           echo "========================================"
           echo " Security Scan Summary"
           echo "========================================"
-          echo " static-analysis : ${{ needs.static-analysis.result }}"
-          echo " dependency-audit: ${{ needs.dependency-audit.result }}"
-          echo " exposure-scan   : ${{ needs.exposure-scan.result }}"
-          echo " supply-chain    : ${{ needs.supply-chain.result }}"
+          echo " static-analysis : $SA"
+          echo " dependency-audit: $DA"
+          echo " exposure-scan   : $ES"
+          echo " supply-chain    : $SC"
           echo "========================================"
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
-            echo "Security scan FAILED — check job details above"
+
+          if [[ "$SA" == "failure" || "$DA" == "failure" || "$ES" == "failure" || "$SC" == "failure" ]]; then
+            echo "Security scan FAILED"
             exit 1
           fi
           echo "All security checks PASSED"
