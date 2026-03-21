@@ -1,3 +1,3 @@
 /* global setTimeout */
 
-// Existing contents of js/lang.js
+// Existing content of js/lang.js file goes here...
