@@ -28,6 +28,6 @@ No data is sent to any server. No cookies are set. No tracking.
 ## Reporting a vulnerability
 
 If you find a security issue in this project, please open a GitHub Issue  
-or contact directly: **wambobryan7@gmail.com**
+or contact directly: **Wabryan-IT**
 
 Response time: within 72 hours.
