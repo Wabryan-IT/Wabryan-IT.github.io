@@ -116,49 +116,6 @@
   animation: fadeUp 0.9s var(--ease-out) 0.75s forwards;
 }
 
-/* Aside stats */
-.hero-aside {
-  position: absolute;
-  right: 3rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  z-index: 1;
-  opacity: 0;
-  animation: fadeLeft 0.9s var(--ease-out) 1s forwards;
-}
-
-.aside-stat {
-  text-align: right;
-  border-right: 2px solid var(--b2);
-  padding-right: 1.2rem;
-  transition: border-color 0.3s;
-}
-
-.aside-stat:hover { border-color: var(--brand); }
-
-.aside-num {
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
-
-.aside-num em {
-  font-style: normal;
-  color: var(--brand);
-}
-
-.aside-label {
-  font-size: 0.67rem;
-  color: var(--t3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 500;
-  margin-top: 2px;
-}
-
 /* Scroll hint */
 .hero-scroll {
   position: absolute;

@@ -1,0 +1,36 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependency directories (if you ever add npm)
+node_modules/
+package-lock.json
+
+# Environment & secrets — NEVER commit these
+.env
+.env.*
+*.env
+secrets.json
+credentials.json
+config.local.json
+
+# Build output
+dist/
+build/
+.cache/
+
+# Temp
+*.tmp
+*.temp

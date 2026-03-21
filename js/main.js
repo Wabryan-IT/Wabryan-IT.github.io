@@ -5,7 +5,7 @@
 
 import { initCursor, initScrollBar } from './cursor.js';
 import { initTheme }                 from './theme.js';
-import { initLang, applyLang, currentLang } from './lang.js';
+import { initLang }                          from './lang.js';
 import { scrambleText }              from './scramble.js';
 import { renderExperience, renderProjects, renderSkills, renderEducation } from './render.js';
 import { initModal, loadImages }     from './modal.js';
@@ -49,15 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Scramble hero name
   scrambleText('hero-scramble', 'Wambo.');
 
-  // Load images from localStorage
-  const images = loadImages();
+  // Load images store from localStorage
+  const store = loadImages();
 
   // Initial render
-  renderAll(images);
+  renderAll(store);
 
-  // Modal (callback pour re-rendre les cards après upload)
-  initModal((updatedImages) => {
-    renderProjects(updatedImages);
+  // Modal — re-render cards after image upload/delete
+  initModal((updatedStore) => {
+    renderProjects(updatedStore);
   });
 
   // Re-render quand la langue change

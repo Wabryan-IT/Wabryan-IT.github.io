@@ -6,7 +6,6 @@
 
 import { EXPERIENCES, PROJECTS, SKILLS, EDUCATION } from './data.js';
 import { currentLang } from './lang.js';
-import { getProjectCover } from './modal.js';
 
 /* ── SVG ICONS ── */
 const ICONS = {
@@ -77,7 +76,8 @@ export function renderProjects(store = {}) {
   const hint = lang === 'fr' ? 'Voir le détail →' : 'View details →';
 
   grid.innerHTML = PROJECTS.map(p => {
-    const coverSrc = getProjectCover(p.id, store) || (p.images && p.images[0]) || null;
+    const storedImgs = store[p.id];
+    const coverSrc = (Array.isArray(storedImgs) && storedImgs.length > 0) ? storedImgs[0] : (p.images && p.images[0]) || null;
     const imgCount = (store[p.id] || []).length;
 
     const thumbHTML = coverSrc
