@@ -1,125 +1,61 @@
 <div align="center">
 
-<br/>
+<!-- ANIMATED HEADER -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,50:1e3a5f,100:3b82f6&height=200&section=header&text=Wabryan-IT&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Cybersecurity%20Student%20%7C%20Portfolio&descAlignY=58&descSize=18&descColor=93c5fd&animation=fadeIn" width="100%"/>
 
-```
-██████╗ ██╗    ██╗    ██╗    ██╗ █████╗ ███╗   ███╗██████╗  ██████╗
-██╔══██╗██║    ██║    ██║    ██║██╔══██╗████╗ ████║██╔══██╗██╔═══██╗
-██████╔╝██║ █╗ ██║    ██║ █╗ ██║███████║██╔████╔██║██████╔╝██║   ██║
-██╔══██╗██║███╗██║    ██║███╗██║██╔══██║██║╚██╔╝██║██╔══██╗██║   ██║
-██████╔╝╚███╔███╔╝    ╚███╔███╔╝██║  ██║██║ ╚═╝ ██║██████╔╝╚██████╔╝
-╚═════╝  ╚══╝╚══╝      ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝  ╚═════╝
-```
+<!-- TYPING ANIMATION -->
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Syne&weight=700&size=22&pause=1000&color=3B82F6&center=true&vCenter=true&width=600&lines=Cybersecurity+Student+%40+Ecole-IT;NIS2+%7C+Microsoft+Entra+ID+%7C+2FA;Penetration+Testing+%7C+Audit;Available+for+Internship+%F0%9F%87%A7%F0%9F%87%AA)](https://git.io/typing-svg)<br/>
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-wabryan--it.github.io-3b82f6?style=for-the-badge&logo=github&logoColor=white)](https://wabryan-it.github.io)
 
 <br/>
 
-# Bryan Wambo — Personal Portfolio
+![Status](https://img.shields.io/badge/Status-Open%20to%20Internship-22c55e?style=flat-square&logo=checkmarx&logoColor=white)
+![Stack](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS-f59e0b?style=flat-square)
 
-**Cybersecurity Student · Ecole-IT Belgium · Seeking Internship**
-
-<br/>
-
-[![Live](https://img.shields.io/badge/Live-wabryan--it.github.io-0066FF?style=for-the-badge&logo=github&logoColor=white)](https://wabryan-it.github.io)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-bryan--wambo-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/bryan-wambo)
-[![Email](https://img.shields.io/badge/Email-wambobryan7%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:wambobryan7@gmail.com)
-
-<br/>
-
-![CI](https://github.com/Wabryan-IT/Wabryan-IT.github.io/actions/workflows/ci.yml/badge.svg)
-![Security](https://github.com/Wabryan-IT/Wabryan-IT.github.io/actions/workflows/security.yml/badge.svg)
-![Deploy](https://github.com/Wabryan-IT/Wabryan-IT.github.io/actions/workflows/deploy.yml/badge.svg)
-
-<br/>
-
----
 
 </div>
 
-<br/>
+## Projects
 
-## Overview
+### SecureShop — Web Security Audit
 
-Personal cybersecurity portfolio built from scratch — no frameworks, no templates, no runtime dependencies. Pure HTML, CSS and JavaScript with a professional CI/CD pipeline.
+> Full security audit on a fictional e-commerce application, adopting both **offensive and defensive** posture.
 
-> **Choice. Action. Possibility.**
+[![SecureShop](https://img.shields.io/badge/View%20Project-SecureShop-3b82f6?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Wabryan-IT/SecureShop)
 
-<br/>
+`Penetration Testing` `Vulnerability Analysis`
 
-## CI/CD Pipeline
+---
 
-Every push to `main` triggers the following automated workflows:
+## GitHub Stats
 
-| Workflow | Checks |
-|---|---|
-| **CI** | HTML validation, CSS lint, JS lint, import integrity, accessibility, structure |
-| **Security** | XSS scan, secret detection, CSP validation, dependency audit, supply chain |
-| **Lighthouse** | Performance, accessibility score, SEO, Core Web Vitals |
-| **Deploy** | Build → gate → deploy to GitHub Pages → smoke test |
-| **CodeQL** | Static vulnerability analysis (weekly + on push) |
+<div align="center">
+
+<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Wabryan-IT&layout=compact&theme=tokyonight&hide_border=true&bg_color=0d1117&title_color=3b82f6&text_color=c9d1d9" />
+
 
 <br/>
 
-## Features
+[![GitHub Streak](https://streak-stats.demolab.com?user=Wabryan-IT&theme=tokyonight&hide_border=true&background=0d1117&ring=3b82f6&fire=3b82f6&currStreakLabel=3b82f6)](https://git.io/streak-stats)
 
-| Feature | Description |
-|---|---|
-| **Dark / Light** | Theme toggle, preference saved |
-| **FR / EN** | Full bilingual |
-| **Projects** | Image gallery with carousel (up to 3 images) |
-| **Cursor** | Custom magnetic cursor |
-| **Animations** | CSS scroll-driven, zero JavaScript |
-| **Mobile** | Fully responsive |
-| **Security** | CSP, X-Frame-Options, Referrer-Policy, noopener noreferrer |
+</div>
 
-<br/>
 
-## Project Structure
+---
 
-```
-portfolio/
-├── index.html
-├── css/                    ← Modular stylesheets
-├── js/
-│   ├── data.js             ← Edit all content here
-│   └── ...                 ← Feature modules
-├── .github/
-│   ├── workflows/          ← CI/CD pipelines
-│   └── ISSUE_TEMPLATE/
-├── scripts/                ← CI helper scripts
-├── .eslintrc.json
-├── .stylelintrc.json
-├── .htmlvalidate.json
-├── lighthouserc.json
-├── SECURITY.md
-└── README.md
-```
+## Portfolio
 
-<br/>
+<div align="center">
 
-## Run Locally
+**Live at → [wabryan-it.github.io](https://wabryan-it.github.io)**
 
-```bash
-git clone https://github.com/Wabryan-IT/Wabryan-IT.github.io.git
-cd Wabryan-IT.github.io
-npm install
-npx serve . -p 8080
-# open http://localhost:8080
-```
+`Dark / Light mode` · `FR / EN` · `Scroll animations` · `Project gallery`
 
-<br/>
+</div>
 
-## Edit Content
-
-Open **`js/data.js`** to update text, projects, skills and education. Everything else updates automatically.
-
-<br/>
 
 ---
 
 <div align="center">
-
-**Bryan Wambo** · Cybersecurity Student · Belgium · 2026
-
-[![Visit Portfolio](https://img.shields.io/badge/Visit%20Portfolio-%230066FF.svg?style=for-the-badge&logoColor=white)](https://wabryan-it.github.io)
-
-</div>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:3b82f6,100:0f172a&height=100&section=footer" width="100%"/>
